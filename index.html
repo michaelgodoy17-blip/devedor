@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <title>Contas</title>
 
   <style>
@@ -14,12 +14,10 @@
       padding: 15px;
       max-width: 400px;
       margin: 0 auto;
-      /* Adiciona a rolagem quando o conteúdo cresce */
-      min-height: 100vh;
-      overflow-y: auto;
+      /* Removemos o overflow fixo para a barra sumir quando não houver dados */
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Faz o topo ficar fixo se você quiser, ou apenas deixa o fluxo normal */
     h1 {
       font-size: 18px;
       margin-bottom: 10px;
@@ -30,27 +28,41 @@
     button {
       width: 100%;
       margin-bottom: 8px;
-      padding: 10px;
+      padding: 12px;
+      /* Aumentei levemente para o toque no iPhone */
       font-family: "Courier New", monospace;
-      font-size: 14px;
+      /* Essencial para iPhone não dar zoom automático: */
+      font-size: 16px;
       border: 1px solid #000;
       background: #fff;
       box-sizing: border-box;
       display: block;
+      /* Remove sombras internas padrões do iOS */
+      /* Remove o estilo padrão do sistema (iOS/Safari) */
+      -webkit-appearance: none;
+      /* Define o padrão moderno para navegadores atuais */
+      appearance: none;
+      /* Garante que o Firefox também siga a regra */
+      -moz-appearance: none;
+      border-radius: 0;
     }
 
     button {
       cursor: pointer;
       text-transform: uppercase;
       font-weight: bold;
+      background: #000;
+      color: #fff;
     }
 
     #copiarBtn {
       width: auto;
-      padding: 5px 10px;
-      font-size: 12px;
+      padding: 8px 12px;
+      font-size: 14px;
       margin-top: 5px;
       text-transform: none;
+      background: #fff;
+      color: #000;
     }
 
     #lista {
@@ -61,7 +73,6 @@
     .dia {
       margin-top: 15px;
       font-weight: bold;
-      padding-bottom: 2px;
     }
 
     .desc {
@@ -73,8 +84,8 @@
       margin-top: 15px;
       border-top: 1px dashed #000;
       padding-top: 10px;
-      padding-bottom: 40px;
-      /* Espaço extra no final para não colar na borda */
+      padding-bottom: 60px;
+      /* Garante que o final da lista não fique sob a barra do Safari */
       font-size: 14px;
       white-space: pre-line;
       line-height: 1.5;
@@ -83,6 +94,7 @@
     .btn-limpar {
       background: #fff0f0;
       color: #800;
+      border-color: #800;
     }
   </style>
 </head>
