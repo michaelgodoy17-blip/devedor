@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contas</title>
+
+  <style>
+    body {
+      font-family: "Courier New", monospace;
+      background: #fdfdfd;
+      color: #000;
+      padding: 15px;
+      max-width: 400px;
+      margin: 0 auto;
+      /* Adiciona a rolagem quando o conteúdo cresce */
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* Faz o topo ficar fixo se você quiser, ou apenas deixa o fluxo normal */
+    h1 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 10px;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      border: 1px solid #000;
+      background: #fff;
+      box-sizing: border-box;
+      display: block;
+    }
+
+    button {
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    #copiarBtn {
+      width: auto;
+      padding: 5px 10px;
+      font-size: 12px;
+      margin-top: 5px;
+      text-transform: none;
+    }
+
+    #lista {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .dia {
+      margin-top: 15px;
+      font-weight: bold;
+      padding-bottom: 2px;
+    }
+
+    .desc {
+      font-style: italic;
+      color: #555;
+    }
+
+    #resultado {
+      margin-top: 15px;
+      border-top: 1px dashed #000;
+      padding-top: 10px;
+      padding-bottom: 40px;
+      /* Espaço extra no final para não colar na borda */
+      font-size: 14px;
+      white-space: pre-line;
+      line-height: 1.5;
+    }
+
+    .btn-limpar {
+      background: #fff0f0;
+      color: #800;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>DIVISÃO DE CONTAS</h1>
+
+  <input type="number" id="valor" placeholder="Valor">
+  <input type="text" id="local" placeholder="Descrição (opcional)">
+
+  <select id="pagador">
+    <option value="Michael">Michael</option>
+    <option value="Steffany">Steffany</option>
+  </select>
+
+  <button onclick="adicionar()">Adicionar</button>
+  <button class="btn-limpar" onclick="limparTudo()">Limpar Dados</button>
+
+  <button id="copiarBtn" onclick="copiar()">Copiar extrato</button>
+
+  <div id="lista"></div>
+  <div id="resultado"></div>
+
+  <script>
+    // O restante do script (logica de localstorage) continua exatamente o mesmo 
+    // que passei na resposta anterior.
+    let gastos = [];
+
+    window.onload = () => {
+      const dadosSalvos = localStorage.getItem('meusGastos');
+      if (dadosSalvos) {
+        gastos = JSON.parse(dadosSalvos);
+        gastos.forEach(g => g.data = new Date(g.data));
+        atualizar();
+      }
+    };
+
+    function salvarLocal() {
+      localStorage.setItem('meusGastos', JSON.stringify(gastos));
+    }
+
+    function formatarData(data) {
+      const d = new Date(data);
+      const dia = String(d.getDate()).padStart(2, '0');
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      return `${dia}/${mes}`;
+    }
+
+    function adicionar() {
+      const valorInput = document.getElementById('valor');
+      const localInput = document.getElementById('local');
+      const pagador = document.getElementById('pagador').value;
+      const valor = parseFloat(valorInput.value);
+
+      if (!valor || valor <= 0) return;
+
+      gastos.push({
+        valor,
+        pagador,
+        local: localInput.value,
+        data: new Date()
+      });
+
+      valorInput.value = "";
+      localInput.value = "";
+      salvarLocal();
+      atualizar();
+    }
+
+    function atualizar() {
+      let total = 0;
+      let m = 0;
+      let s = 0;
+
+      gastos.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+      let listaHTML = "";
+      let extratoTexto = "";
+      let ultimoDia = "";
+
+      gastos.forEach(g => {
+        const dataFormatada = formatarData(g.data);
+
+        if (dataFormatada !== ultimoDia) {
+          listaHTML += `<div class="dia">${dataFormatada}</div>`;
+
+          // REMOVIDO: a linha de quebra (\n) que criava o espaço vazio no extrato
+          extratoTexto += `${dataFormatada}\n`;
+
+          ultimoDia = dataFormatada;
+        }
+
+        listaHTML += `
+      <div>
+        ${g.pagador} R$ ${g.valor.toFixed(2)} 
+        ${g.local ? `| <span class="desc">${g.local}</span>` : ""}
+      </div>
+    `;
+
+        extratoTexto += `${g.pagador} R$ ${g.valor.toFixed(2)}${g.local ? " | " + g.local : ""}\n`;
+
+        total += g.valor;
+        if (g.pagador === "Michael") m += g.valor;
+        else s += g.valor;
+      });
+
+      const metade = total / 2;
+
+      let resultado = `TOTAL: R$ ${total.toFixed(2)}\n`;
+      resultado += `POR PESSOA: R$ ${metade.toFixed(2)}\n\n`;
+
+      if (m > metade) {
+        resultado += `Steffany deve R$ ${(m - metade).toFixed(2)} para Michael`;
+      } else if (s > metade) {
+        resultado += `Michael deve R$ ${(s - metade).toFixed(2)} para Steffany`;
+      } else {
+        resultado += `NINGUÉM DEVE NADA`;
+      }
+
+      extratoTexto += `\n${resultado}`;
+
+      document.getElementById('lista').innerHTML = listaHTML;
+      document.getElementById('resultado').innerText = resultado;
+
+      window.extratoFinal = extratoTexto;
+    }
+
+    function copiar() {
+      if (!window.extratoFinal) return;
+      navigator.clipboard.writeText(window.extratoFinal);
+      alert("Extrato copiado!");
+    }
+
+    function limparTudo() {
+      if (confirm("Deseja apagar todos os registros?")) {
+        gastos = [];
+        localStorage.removeItem('meusGastos');
+        atualizar();
+      }
+    }
+  </script>
+
+</body>
+
+</html>
