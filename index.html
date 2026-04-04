@@ -29,22 +29,25 @@
       width: 100%;
       margin-bottom: 8px;
       padding: 12px;
-      /* Aumentei levemente para o toque no iPhone */
       font-family: "Courier New", monospace;
-      /* Essencial para iPhone não dar zoom automático: */
+
+      /* 1. Impede o zoom automático no iPhone */
       font-size: 16px;
+
       border: 1px solid #000;
       background: #fff;
       box-sizing: border-box;
       display: block;
-      /* Remove sombras internas padrões do iOS */
-      /* Remove o estilo padrão do sistema (iOS/Safari) */
+
+      /* 2. Remove o estilo padrão do iOS (botões arredondados e degradês) */
       -webkit-appearance: none;
-      /* Define o padrão moderno para navegadores atuais */
-      appearance: none;
-      /* Garante que o Firefox também siga a regra */
       -moz-appearance: none;
+      appearance: none;
       border-radius: 0;
+
+      /* 3. Onde colocar o OUTLINE: */
+      /* Remove a borda de destaque ao clicar/focar no campo */
+      outline: none;
     }
 
     button {
