@@ -14,7 +14,6 @@
       padding: 15px;
       max-width: 400px;
       margin: 0 auto;
-      /* Removemos o overflow fixo para a barra sumir quando não houver dados */
       -webkit-font-smoothing: antialiased;
     }
 
@@ -30,23 +29,15 @@
       margin-bottom: 8px;
       padding: 12px;
       font-family: "Courier New", monospace;
-
-      /* 1. Impede o zoom automático no iPhone */
       font-size: 16px;
-
       border: 1px solid #000;
       background: #fff;
       box-sizing: border-box;
       display: block;
-
-      /* 2. Remove o estilo padrão do iOS (botões arredondados e degradês) */
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
       border-radius: 0;
-
-      /* 3. Onde colocar o OUTLINE: */
-      /* Remove a borda de destaque ao clicar/focar no campo */
       outline: none;
     }
 
@@ -88,7 +79,6 @@
       border-top: 1px dashed #000;
       padding-top: 10px;
       padding-bottom: 60px;
-      /* Garante que o final da lista não fique sob a barra do Safari */
       font-size: 14px;
       white-space: pre-line;
       line-height: 1.5;
@@ -106,7 +96,7 @@
 
   <h1>DIVISÃO DE CONTAS</h1>
 
-  <input type="number" id="valor" placeholder="Valor">
+  <input type="number" id="valor" placeholder="Valor" inputmode="decimal">
   <input type="text" id="local" placeholder="Descrição (opcional)">
 
   <select id="pagador">
@@ -123,8 +113,6 @@
   <div id="resultado"></div>
 
   <script>
-    // O restante do script (logica de localstorage) continua exatamente o mesmo 
-    // que passei na resposta anterior.
     let gastos = [];
 
     window.onload = () => {
@@ -173,32 +161,30 @@
       let m = 0;
       let s = 0;
 
-      gastos.sort((a, b) => new Date(a.data) - new Date(b.data));
+      gastos.sort((a, b) => {
+        const dataDiff = new Date(a.data).setHours(0, 0, 0, 0) - new Date(b.data).setHours(0, 0, 0, 0);
+        if (dataDiff !== 0) return dataDiff;
+        return a.pagador.localeCompare(b.pagador);
+      });
 
       let listaHTML = "";
-      let extratoTexto = "";
+      let extratoCorpo = "";
       let ultimoDia = "";
 
       gastos.forEach(g => {
         const dataFormatada = formatarData(g.data);
 
         if (dataFormatada !== ultimoDia) {
+          if (ultimoDia !== "") {
+            extratoCorpo += "\n";
+          }
           listaHTML += `<div class="dia">${dataFormatada}</div>`;
-
-          // REMOVIDO: a linha de quebra (\n) que criava o espaço vazio no extrato
-          extratoTexto += `${dataFormatada}\n`;
-
+          extratoCorpo += `*${dataFormatada}*\n`;
           ultimoDia = dataFormatada;
         }
 
-        listaHTML += `
-      <div>
-        ${g.pagador} R$ ${g.valor.toFixed(2)} 
-        ${g.local ? `| <span class="desc">${g.local}</span>` : ""}
-      </div>
-    `;
-
-        extratoTexto += `${g.pagador} R$ ${g.valor.toFixed(2)}${g.local ? " | " + g.local : ""}\n`;
+        listaHTML += `<div>${g.pagador} R$ ${g.valor.toFixed(2)} ${g.local ? `| <span class="desc">${g.local}</span>` : ""}</div>`;
+        extratoCorpo += `${g.pagador} R$ ${g.valor.toFixed(2)}${g.local ? " | " + g.local : ""}\n`;
 
         total += g.valor;
         if (g.pagador === "Michael") m += g.valor;
@@ -207,28 +193,42 @@
 
       const metade = total / 2;
 
-      let resultado = `TOTAL: R$ ${total.toFixed(2)}\n`;
-      resultado += `POR PESSOA: R$ ${metade.toFixed(2)}\n\n`;
+      let resumoWhatsApp = `\n*Total: R$ ${total.toFixed(2)}*\n`;
+      resumoWhatsApp += `*Por pessoa: R$ ${metade.toFixed(2)}*\n\n`;
+
+      let resumoFront = resumoWhatsApp.replace(/\*/g, '');
 
       if (m > metade) {
-        resultado += `Steffany deve R$ ${(m - metade).toFixed(2)} para Michael`;
+        const valorDevido = (m - metade).toFixed(2);
+        resumoWhatsApp += `Steffany deve *R$ ${valorDevido}* para Michael\n\n`;
+        resumoWhatsApp += `_*Pix Michael:*_ _CPF 438.505.178-02 (Banco Inter)_`;
+        resumoFront += `Steffany deve R$ ${valorDevido} para Michael`;
       } else if (s > metade) {
-        resultado += `Michael deve R$ ${(s - metade).toFixed(2)} para Steffany`;
-      } else {
-        resultado += `NINGUÉM DEVE NADA`;
+        const valorDevido = (s - metade).toFixed(2);
+        resumoWhatsApp += `Michael deve *R$ ${valorDevido}* para Steffany\n\n`;
+        resumoWhatsApp += `_*Pix Steffany:*_ _E-mail steffanynobukawa2021@gmail.com_`;
+        resumoFront += `Michael deve R$ ${valorDevido} para Steffany`;
+      } else if (total > 0) {
+        resumoFront += `Contas equilibradas!`;
+        resumoWhatsApp += `Contas equilibradas!`;
       }
 
-      extratoTexto += `\n${resultado}`;
-
       document.getElementById('lista').innerHTML = listaHTML;
-      document.getElementById('resultado').innerText = resultado;
+      document.getElementById('resultado').innerText = resumoFront;
 
-      window.extratoFinal = extratoTexto;
+      window.extratoFinal = extratoCorpo + resumoWhatsApp;
     }
 
     function copiar() {
-      if (!window.extratoFinal) return;
-      navigator.clipboard.writeText(window.extratoFinal);
+      if (!window.extratoFinal || gastos.length === 0) return;
+
+      const el = document.createElement('textarea');
+      el.value = window.extratoFinal;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
       alert("Extrato copiado!");
     }
 
