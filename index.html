@@ -69,9 +69,28 @@
       font-weight: bold;
     }
 
+    .item-gasto {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
     .desc {
       font-style: italic;
       color: #555;
+    }
+
+    .btn-remover {
+      color: #ccc;
+      cursor: pointer;
+      font-size: 18px;
+      padding-left: 10px;
+      user-select: none;
+    }
+
+    .btn-remover:hover {
+      color: #000;
     }
 
     #resultado {
@@ -156,11 +175,18 @@
       atualizar();
     }
 
+    function remover(index) {
+      gastos.splice(index, 1);
+      salvarLocal();
+      atualizar();
+    }
+
     function atualizar() {
       let total = 0;
       let m = 0;
       let s = 0;
 
+      // Ordenação (Data + Nome)
       gastos.sort((a, b) => {
         const dataDiff = new Date(a.data).setHours(0, 0, 0, 0) - new Date(b.data).setHours(0, 0, 0, 0);
         if (dataDiff !== 0) return dataDiff;
@@ -171,19 +197,26 @@
       let extratoCorpo = "";
       let ultimoDia = "";
 
-      gastos.forEach(g => {
+      gastos.forEach((g, index) => {
         const dataFormatada = formatarData(g.data);
 
         if (dataFormatada !== ultimoDia) {
-          if (ultimoDia !== "") {
-            extratoCorpo += "\n";
-          }
+          if (ultimoDia !== "") extratoCorpo += "\n";
           listaHTML += `<div class="dia">${dataFormatada}</div>`;
           extratoCorpo += `*${dataFormatada}*\n`;
           ultimoDia = dataFormatada;
         }
 
-        listaHTML += `<div>${g.pagador} R$ ${g.valor.toFixed(2)} ${g.local ? `| <span class="desc">${g.local}</span>` : ""}</div>`;
+        listaHTML += `
+          <div class="item-gasto">
+            <span>
+              ${g.pagador} R$ ${g.valor.toFixed(2)} 
+              ${g.local ? `| <span class="desc">${g.local}</span>` : ""}
+            </span>
+            <span class="btn-remover" onclick="remover(${index})">×</span>
+          </div>
+        `;
+
         extratoCorpo += `${g.pagador} R$ ${g.valor.toFixed(2)}${g.local ? " | " + g.local : ""}\n`;
 
         total += g.valor;
@@ -221,14 +254,12 @@
 
     function copiar() {
       if (!window.extratoFinal || gastos.length === 0) return;
-
       const el = document.createElement('textarea');
       el.value = window.extratoFinal;
       document.body.appendChild(el);
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-
       alert("Extrato copiado!");
     }
 
