@@ -3,273 +3,1125 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Contas">
   <title>Contas</title>
 
   <style>
-    body {
-      font-family: "Courier New", monospace;
-      background: #fdfdfd;
-      color: #000;
-      padding: 15px;
-      max-width: 400px;
-      margin: 0 auto;
-      -webkit-font-smoothing: antialiased;
+    :root {
+      --bg: #f2f2f7;
+      --card: #ffffff;
+      --campo: #f2f2f7;
+      --ativo: #ffffff;
+      --txt: #111114;
+      --sub: #6e6e78;
+      --linha: #e8e8ed;
+      --primaria: #111114;
+      --primaria-txt: #ffffff;
+      --m: #4f6bed;
+      --m-bg: #e8ecfd;
+      --s: #e0577f;
+      --s-bg: #fce8ee;
+      --perigo: #d14343;
+      --raio: 20px;
+      --sombra: 0 1px 2px rgba(0, 0, 0, .04), 0 4px 16px rgba(0, 0, 0, .04);
     }
 
-    h1 {
-      font-size: 18px;
-      margin-bottom: 10px;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --card: #1c1c1e;
+        --campo: #2c2c2e;
+        --ativo: #48484a;
+        --txt: #f2f2f7;
+        --sub: #98989f;
+        --linha: #2c2c2e;
+        --primaria: #f2f2f7;
+        --primaria-txt: #000000;
+        --m: #8197ff;
+        --m-bg: #232a4d;
+        --s: #ff7aa0;
+        --s-bg: #4a2030;
+        --perigo: #ff6b6b;
+        --sombra: none;
+      }
     }
 
-    input,
-    select,
-    button {
-      width: 100%;
-      margin-bottom: 8px;
-      padding: 12px;
-      font-family: "Courier New", monospace;
-      font-size: 16px;
-      border: 1px solid #000;
-      background: #fff;
+    * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html,
+    body {
+      margin: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 40px);
+    }
+
+    /* ---------- Topo ---------- */
+    .topo h1 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin: 4px 2px 14px;
+    }
+
+    .segmentado {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      background: var(--campo);
+      padding: 4px;
+      border-radius: 14px;
+    }
+
+    .segmentado.tres {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .segmentado button {
+      border: 0;
+      background: transparent;
+      padding: 10px 4px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--sub);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: background .15s, color .15s;
+    }
+
+    .segmentado button small {
+      font-size: 11px;
+      font-weight: 500;
+      opacity: .85;
+    }
+
+    .segmentado button.ativo {
+      background: var(--ativo);
+      color: var(--txt);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+    }
+
+    #pagador button.ativo[data-v="Michael"] {
+      color: var(--m);
+    }
+
+    #pagador button.ativo[data-v="Steffany"] {
+      color: var(--s);
+    }
+
+    .tabs {
+      background: var(--card);
+      box-shadow: var(--sombra);
+      margin-bottom: 16px;
+    }
+
+    .tabs button.ativo {
+      background: var(--primaria);
+      color: var(--primaria-txt);
+    }
+
+    /* ---------- Card de saldo ---------- */
+    .saldo {
+      background: linear-gradient(135deg, #24285a 0%, #5a2d5e 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .saldo-topo {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      opacity: .75;
+      margin-bottom: 14px;
+    }
+
+    .saldo-label {
+      font-size: 15px;
+      opacity: .85;
+    }
+
+    .saldo-valor {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin: 2px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .saldo-detalhe {
+      font-size: 15px;
+      opacity: .85;
+    }
+
+    .saldo-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, .15);
+    }
+
+    .saldo-stats div {
+      font-size: 12px;
+      opacity: .75;
+    }
+
+    .saldo-stats b {
       display: block;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      border-radius: 0;
+      font-size: 15px;
+      opacity: 1;
+      color: #fff;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Formulário ---------- */
+    .card {
+      background: var(--card);
+      border-radius: var(--raio);
+      box-shadow: var(--sombra);
+    }
+
+    .form {
+      padding: 16px;
+    }
+
+    .campo-valor {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 4px 4px 12px;
+      border-bottom: 1px solid var(--linha);
+      margin-bottom: 12px;
+    }
+
+    .campo-valor span {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--sub);
+    }
+
+    .campo-valor input {
+      border: 0;
+      background: transparent;
+      font-family: inherit;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      width: 100%;
+      color: var(--txt);
+      outline: none;
+      padding: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .campo-valor input::placeholder {
+      color: var(--linha);
+    }
+
+    .campo {
+      width: 100%;
+      border: 0;
+      background: var(--campo);
+      border-radius: 12px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 16px;
+      color: var(--txt);
       outline: none;
     }
 
-    button {
-      cursor: pointer;
-      text-transform: uppercase;
-      font-weight: bold;
-      background: #000;
-      color: #fff;
+    .campo::placeholder {
+      color: var(--sub);
     }
 
-    #copiarBtn {
-      width: auto;
-      padding: 8px 12px;
-      font-size: 14px;
-      margin-top: 5px;
-      text-transform: none;
-      background: #fff;
-      color: #000;
+    .rotulo {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      margin: 16px 2px 8px;
     }
 
-    #lista {
-      margin-top: 15px;
-      font-size: 14px;
+    .btn-primario {
+      width: 100%;
+      border: 0;
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--primaria);
+      color: var(--primaria-txt);
+      font-size: 16px;
+      font-weight: 700;
+      transition: transform .1s;
     }
 
-    .dia {
-      margin-top: 15px;
-      font-weight: bold;
+    .btn-primario:active,
+    .btn-sec:active {
+      transform: scale(.98);
     }
 
-    .item-gasto {
+    /* ---------- Lista ---------- */
+    .grupo-cab {
       display: flex;
       justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      padding: 22px 6px 8px;
+    }
+
+    .itens {
+      overflow: hidden;
+    }
+
+    .item {
+      display: flex;
       align-items: center;
-      margin-bottom: 2px;
+      gap: 12px;
+      padding: 12px 8px 12px 14px;
+      border-bottom: 1px solid var(--linha);
     }
 
-    .desc {
-      font-style: italic;
-      color: #555;
+    .item:last-child {
+      border-bottom: 0;
     }
 
-    .btn-remover {
-      color: #ccc;
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .av-m {
+      background: var(--m-bg);
+      color: var(--m);
+    }
+
+    .av-s {
+      background: var(--s-bg);
+      color: var(--s);
+    }
+
+    .item-txt {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-titulo {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-titulo.vazio {
+      color: var(--sub);
+      font-weight: 500;
+    }
+
+    .item-sub {
+      font-size: 13px;
+      color: var(--sub);
+      margin-top: 1px;
+    }
+
+    .item-valor {
+      font-weight: 700;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .btn-x {
+      border: 0;
+      background: transparent;
+      color: var(--sub);
+      font-size: 22px;
+      line-height: 1;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .btn-x:active {
+      background: var(--campo);
+    }
+
+    /* ---------- Ações ---------- */
+    .acoes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-sec {
+      border: 0;
+      padding: 15px 10px;
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--txt);
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: var(--sombra);
+      transition: transform .1s;
+    }
+
+    .btn-sec.perigo {
+      color: var(--perigo);
+    }
+
+    /* ---------- Histórico ---------- */
+    .periodo {
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .periodo summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
       cursor: pointer;
-      font-size: 18px;
-      padding-left: 10px;
-      user-select: none;
     }
 
-    .btn-remover:hover {
-      color: #000;
+    .periodo summary::-webkit-details-marker {
+      display: none;
     }
 
-    #resultado {
-      margin-top: 15px;
-      border-top: 1px dashed #000;
-      padding-top: 10px;
-      padding-bottom: 60px;
-      font-size: 14px;
-      white-space: pre-line;
+    .periodo summary::after {
+      content: "›";
+      font-size: 24px;
+      color: var(--sub);
+      transition: transform .2s;
+      margin-left: 4px;
+    }
+
+    .periodo[open] summary::after {
+      transform: rotate(90deg);
+    }
+
+    .per-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .per-titulo {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .per-sub {
+      font-size: 13px;
+      color: var(--sub);
+      margin-top: 2px;
+    }
+
+    .per-res {
+      text-align: right;
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .per-res b {
+      display: block;
+      font-size: 15px;
+      color: var(--txt);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .per-corpo {
+      padding: 0 12px 14px;
+      border-top: 1px solid var(--linha);
+    }
+
+    .per-corpo .itens {
+      background: var(--campo);
+      box-shadow: none;
+    }
+
+    .per-corpo .item {
+      border-color: var(--linha);
+    }
+
+    .per-corpo .acoes {
+      margin-top: 14px;
+    }
+
+    .per-corpo .btn-sec {
+      background: var(--campo);
+      box-shadow: none;
+    }
+
+    .vazio-estado {
+      text-align: center;
+      color: var(--sub);
+      padding: 48px 24px;
+      font-size: 15px;
       line-height: 1.5;
     }
 
-    .btn-limpar {
-      background: #fff0f0;
-      color: #800;
-      border-color: #800;
+    .vazio-estado b {
+      display: block;
+      color: var(--txt);
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+
+    .backup {
+      text-align: center;
+      font-size: 13px;
+      color: var(--sub);
+      margin-top: 28px;
+    }
+
+    .backup button {
+      border: 0;
+      background: transparent;
+      color: var(--m);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 10px;
+    }
+
+    /* ---------- Toast ---------- */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom) + 24px);
+      transform: translate(-50%, 20px);
+      background: rgba(28, 28, 30, .94);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    #toast.on {
+      opacity: 1;
+      transform: translate(-50%, 0);
     }
   </style>
 </head>
 
 <body>
+  <div class="app">
 
-  <h1>DIVISÃO DE CONTAS</h1>
+    <header class="topo">
+      <h1>Contas</h1>
+      <nav class="segmentado tabs" id="tabs">
+        <button data-tela="atual" class="ativo">Período atual</button>
+        <button data-tela="historico">Histórico</button>
+      </nav>
+    </header>
 
-  <input type="number" id="valor" placeholder="Valor" inputmode="decimal">
-  <input type="text" id="local" placeholder="Descrição (opcional)">
+    <!-- ================= PERÍODO ATUAL ================= -->
+    <main id="tela-atual">
 
-  <select id="pagador">
-    <option value="Michael">Michael</option>
-    <option value="Steffany">Steffany</option>
-  </select>
+      <section class="saldo">
+        <div class="saldo-topo">
+          <span>Período atual</span>
+          <span id="saldoInfo"></span>
+        </div>
+        <div class="saldo-label" id="saldoLabel"></div>
+        <div class="saldo-valor" id="saldoValor"></div>
+        <div class="saldo-detalhe" id="saldoDetalhe"></div>
+        <div class="saldo-stats" id="saldoStats" hidden></div>
+      </section>
 
-  <button onclick="adicionar()">Adicionar</button>
-  <button class="btn-limpar" onclick="limparTudo()">Limpar Dados</button>
+      <section class="card form">
+        <label class="campo-valor">
+          <span>R$</span>
+          <input type="text" id="valor" inputmode="decimal" placeholder="0,00" autocomplete="off">
+        </label>
 
-  <button id="copiarBtn" onclick="copiar()">Copiar extrato</button>
+        <input type="text" id="local" class="campo" placeholder="Descrição (opcional)" autocomplete="off">
 
-  <div id="lista"></div>
-  <div id="resultado"></div>
+        <div class="rotulo">Quem pagou</div>
+        <div class="segmentado" id="pagador">
+          <button data-v="Michael" class="ativo">Michael</button>
+          <button data-v="Steffany">Steffany</button>
+        </div>
+
+        <div class="rotulo">Divisão</div>
+        <div class="segmentado tres" id="divisao">
+          <button data-v="50" class="ativo">50/50<small>Igual</small></button>
+          <button data-v="60">60/40<small>Michael 60%</small></button>
+          <button data-v="40">40/60<small>Steffany 60%</small></button>
+        </div>
+
+        <button class="btn-primario" id="btnAdicionar">Adicionar gasto</button>
+      </section>
+
+      <section id="lista"></section>
+
+      <div class="acoes" id="acoes" hidden>
+        <button class="btn-sec" id="btnCopiar">Copiar extrato</button>
+        <button class="btn-sec" id="btnFechar">Fechar período</button>
+      </div>
+    </main>
+
+    <!-- ================= HISTÓRICO ================= -->
+    <main id="tela-historico" hidden>
+      <div id="listaPeriodos"></div>
+
+      <div class="backup">
+        Backup de todos os dados<br>
+        <button id="btnExportar">Exportar</button>·<button id="btnImportar">Importar</button>
+        <input type="file" id="arquivoImport" accept="application/json,.json" hidden>
+      </div>
+    </main>
+
+  </div>
+
+  <div id="toast"></div>
 
   <script>
-    let gastos = [];
-
-    window.onload = () => {
-      const dadosSalvos = localStorage.getItem('meusGastos');
-      if (dadosSalvos) {
-        gastos = JSON.parse(dadosSalvos);
-        gastos.forEach(g => g.data = new Date(g.data));
-        atualizar();
-      }
+    // ===== Configuração =====
+    const PIX = {
+      Michael: 'CPF 438.505.178-02 (Banco Inter)',
+      Steffany: 'E-mail steffanynobukawa2021@gmail.com'
     };
+    const CHAVE_ATUAL = 'meusGastos';
+    const CHAVE_HIST = 'periodosFechados';
+    const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-    function salvarLocal() {
-      localStorage.setItem('meusGastos', JSON.stringify(gastos));
+    let gastos = [];
+    let periodos = [];
+    let pagadorSel = 'Michael';
+    let divisaoSel = 50;
+
+    const $ = id => document.getElementById(id);
+
+    // ===== Utilidades =====
+    function gerarId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     }
 
-    function formatarData(data) {
+    function fmt(n) {
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function r2(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    // Aceita "10,50", "10.50", "1.234,56" e "R$ 10"
+    function lerValor(texto) {
+      let t = texto.replace(/[^\d,.]/g, '');
+      if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+      const n = parseFloat(t);
+      return isNaN(n) ? 0 : r2(n);
+    }
+
+    function esc(texto) {
+      return String(texto).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function chaveDia(data) {
       const d = new Date(data);
-      const dia = String(d.getDate()).padStart(2, '0');
-      const mes = String(d.getMonth() + 1).padStart(2, '0');
-      return `${dia}/${mes}`;
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     }
 
-    function adicionar() {
-      const valorInput = document.getElementById('valor');
-      const localInput = document.getElementById('local');
-      const pagador = document.getElementById('pagador').value;
-      const valor = parseFloat(valorInput.value);
+    function diaMes(data) {
+      const d = new Date(data);
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+    }
 
-      if (!valor || valor <= 0) return;
+    function diaMesAno(data) {
+      return `${diaMes(data)}/${new Date(data).getFullYear()}`;
+    }
 
-      gastos.push({
-        valor,
-        pagador,
-        local: localInput.value,
-        data: new Date()
+    function rotuloDia(chave) {
+      const [a, m, d] = chave.split('-').map(Number);
+      const data = new Date(a, m - 1, d);
+      const hoje = new Date();
+      const ontem = new Date();
+      ontem.setDate(hoje.getDate() - 1);
+      if (chave === chaveDia(hoje)) return 'Hoje';
+      if (chave === chaveDia(ontem)) return 'Ontem';
+      return `${DIAS_SEMANA[data.getDay()]}, ${diaMes(data)}`;
+    }
+
+    function toast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('on');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => t.classList.remove('on'), 2200);
+    }
+
+    // ===== Armazenamento =====
+    function normalizar(g) {
+      return {
+        id: g.id || gerarId(),
+        valor: Number(g.valor) || 0,
+        pagador: g.pagador === 'Steffany' ? 'Steffany' : 'Michael',
+        local: g.local || '',
+        pm: typeof g.pm === 'number' ? g.pm : 50, // % que cabe ao Michael
+        data: new Date(g.data || Date.now()).toISOString()
+      };
+    }
+
+    function carregar() {
+      try { gastos = JSON.parse(localStorage.getItem(CHAVE_ATUAL)) || []; } catch (e) { gastos = []; }
+      try { periodos = JSON.parse(localStorage.getItem(CHAVE_HIST)) || []; } catch (e) { periodos = []; }
+      gastos = gastos.map(normalizar);
+      periodos.forEach(p => { p.gastos = (p.gastos || []).map(normalizar); });
+    }
+
+    function salvar() {
+      try {
+        localStorage.setItem(CHAVE_ATUAL, JSON.stringify(gastos));
+        localStorage.setItem(CHAVE_HIST, JSON.stringify(periodos));
+      } catch (e) {
+        toast('Erro ao salvar no aparelho');
+      }
+    }
+
+    // ===== Cálculos =====
+    function calcular(lista) {
+      let total = 0, pagoM = 0, parteM = 0;
+      lista.forEach(g => {
+        total += g.valor;
+        parteM += g.valor * g.pm / 100;
+        if (g.pagador === 'Michael') pagoM += g.valor;
       });
-
-      valorInput.value = "";
-      localInput.value = "";
-      salvarLocal();
-      atualizar();
+      return {
+        total: r2(total),
+        parteM: r2(parteM),
+        parteS: r2(total - parteM),
+        saldo: r2(pagoM - parteM), // > 0: Steffany deve ao Michael
+        temDiv: lista.some(g => g.pm !== 50)
+      };
     }
 
-    function remover(index) {
-      gastos.splice(index, 1);
-      salvarLocal();
-      atualizar();
+    function resultado(c) {
+      if (c.saldo > 0) return { devedor: 'Steffany', credor: 'Michael', valor: c.saldo };
+      if (c.saldo < 0) return { devedor: 'Michael', credor: 'Steffany', valor: -c.saldo };
+      return null;
     }
 
-    function atualizar() {
-      let total = 0;
-      let m = 0;
-      let s = 0;
+    function intervalo(lista) {
+      const tempos = lista.map(g => new Date(g.data).getTime());
+      return { inicio: new Date(Math.min(...tempos)), fim: new Date(Math.max(...tempos)) };
+    }
 
-      // Ordenação (Data + Nome)
-      gastos.sort((a, b) => {
-        const dataDiff = new Date(a.data).setHours(0, 0, 0, 0) - new Date(b.data).setHours(0, 0, 0, 0);
-        if (dataDiff !== 0) return dataDiff;
+    // ===== Extrato para WhatsApp =====
+    function gerarExtrato(lista, titulo) {
+      const ord = lista.slice().sort((a, b) => {
+        const dif = chaveDia(a.data).localeCompare(chaveDia(b.data));
+        if (dif !== 0) return dif;
         return a.pagador.localeCompare(b.pagador);
       });
 
-      let listaHTML = "";
-      let extratoCorpo = "";
-      let ultimoDia = "";
-
-      gastos.forEach((g, index) => {
-        const dataFormatada = formatarData(g.data);
-
-        if (dataFormatada !== ultimoDia) {
-          if (ultimoDia !== "") extratoCorpo += "\n";
-          listaHTML += `<div class="dia">${dataFormatada}</div>`;
-          extratoCorpo += `*${dataFormatada}*\n`;
-          ultimoDia = dataFormatada;
+      let txt = titulo ? `*${titulo}*\n\n` : '';
+      let ultimo = '';
+      ord.forEach(g => {
+        const d = diaMes(g.data);
+        if (d !== ultimo) {
+          if (ultimo) txt += '\n';
+          txt += `*${d}*\n`;
+          ultimo = d;
         }
-
-        listaHTML += `
-          <div class="item-gasto">
-            <span>
-              ${g.pagador} R$ ${g.valor.toFixed(2)} 
-              ${g.local ? `| <span class="desc">${g.local}</span>` : ""}
-            </span>
-            <span class="btn-remover" onclick="remover(${index})">×</span>
-          </div>
-        `;
-
-        extratoCorpo += `${g.pagador} R$ ${g.valor.toFixed(2)}${g.local ? " | " + g.local : ""}\n`;
-
-        total += g.valor;
-        if (g.pagador === "Michael") m += g.valor;
-        else s += g.valor;
+        txt += `${g.pagador} R$ ${fmt(g.valor)}${g.local ? ' | ' + g.local : ''}`;
+        if (g.pm !== 50) txt += ` _(Michael ${g.pm}% / Steffany ${100 - g.pm}%)_`;
+        txt += '\n';
       });
 
-      const metade = total / 2;
-
-      let resumoWhatsApp = `\n*Total: R$ ${total.toFixed(2)}*\n`;
-      resumoWhatsApp += `*Por pessoa: R$ ${metade.toFixed(2)}*\n\n`;
-
-      let resumoFront = resumoWhatsApp.replace(/\*/g, '');
-
-      if (m > metade) {
-        const valorDevido = (m - metade).toFixed(2);
-        resumoWhatsApp += `Steffany deve *R$ ${valorDevido}* para Michael\n\n`;
-        resumoWhatsApp += `_*Pix Michael:*_ _CPF 438.505.178-02 (Banco Inter)_`;
-        resumoFront += `Steffany deve R$ ${valorDevido} para Michael`;
-      } else if (s > metade) {
-        const valorDevido = (s - metade).toFixed(2);
-        resumoWhatsApp += `Michael deve *R$ ${valorDevido}* para Steffany\n\n`;
-        resumoWhatsApp += `_*Pix Steffany:*_ _E-mail steffanynobukawa2021@gmail.com_`;
-        resumoFront += `Michael deve R$ ${valorDevido} para Steffany`;
-      } else if (total > 0) {
-        resumoFront += `Contas equilibradas!`;
-        resumoWhatsApp += `Contas equilibradas!`;
+      const c = calcular(lista);
+      txt += `\n*Total: R$ ${fmt(c.total)}*\n`;
+      if (c.temDiv) {
+        txt += `*Parte Michael: R$ ${fmt(c.parteM)}*\n`;
+        txt += `*Parte Steffany: R$ ${fmt(c.parteS)}*\n\n`;
+      } else {
+        txt += `*Por pessoa: R$ ${fmt(c.total / 2)}*\n\n`;
       }
 
-      document.getElementById('lista').innerHTML = listaHTML;
-      document.getElementById('resultado').innerText = resumoFront;
-
-      window.extratoFinal = extratoCorpo + resumoWhatsApp;
+      const r = resultado(c);
+      if (r) {
+        txt += `${r.devedor} deve *R$ ${fmt(r.valor)}* para ${r.credor}\n\n`;
+        txt += `_*Pix ${r.credor}:*_ _${PIX[r.credor]}_`;
+      } else {
+        txt += 'Contas equilibradas!';
+      }
+      return txt;
     }
 
-    function copiar() {
-      if (!window.extratoFinal || gastos.length === 0) return;
+    function copiarTexto(texto) {
+      const ok = () => toast('Extrato copiado');
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(texto).then(ok).catch(() => copiarFallback(texto, ok));
+      } else {
+        copiarFallback(texto, ok);
+      }
+    }
+
+    function copiarFallback(texto, ok) {
       const el = document.createElement('textarea');
-      el.value = window.extratoFinal;
+      el.value = texto;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
       document.body.appendChild(el);
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-      alert("Extrato copiado!");
+      ok();
     }
 
-    function limparTudo() {
-      if (confirm("Deseja apagar todos os registros?")) {
-        gastos = [];
-        localStorage.removeItem('meusGastos');
-        atualizar();
-      }
+    // ===== Renderização =====
+    function itemHTML(g, editavel) {
+      const classe = g.pagador === 'Michael' ? 'av-m' : 'av-s';
+      const div = g.pm !== 50 ? ` · M${g.pm}/S${100 - g.pm}` : '';
+      const titulo = g.local
+        ? `<div class="item-titulo">${esc(g.local)}</div>`
+        : `<div class="item-titulo vazio">Sem descrição</div>`;
+      return `
+        <div class="item">
+          <div class="avatar ${classe}">${g.pagador[0]}</div>
+          <div class="item-txt">
+            ${titulo}
+            <div class="item-sub">${g.pagador} pagou${div}</div>
+          </div>
+          <div class="item-valor">R$ ${fmt(g.valor)}</div>
+          ${editavel ? `<button class="btn-x" aria-label="Remover" onclick="remover('${g.id}')">×</button>` : ''}
+        </div>`;
     }
+
+    function listaHTML(lista, editavel) {
+      const grupos = {};
+      lista.forEach(g => {
+        const k = chaveDia(g.data);
+        if (!grupos[k]) grupos[k] = [];
+        grupos[k].push(g);
+      });
+
+      return Object.keys(grupos).sort().reverse().map(k => {
+        const itens = grupos[k].sort((a, b) => new Date(b.data) - new Date(a.data));
+        const soma = itens.reduce((s, g) => s + g.valor, 0);
+        return `
+          <div class="grupo">
+            <div class="grupo-cab"><span>${rotuloDia(k)}</span><span>R$ ${fmt(soma)}</span></div>
+            <div class="card itens">${itens.map(g => itemHTML(g, editavel)).join('')}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderAtual() {
+      const c = calcular(gastos);
+      const r = resultado(c);
+
+      if (gastos.length === 0) {
+        $('saldoInfo').textContent = '';
+        $('saldoLabel').textContent = 'Saldo';
+        $('saldoValor').textContent = 'R$ 0,00';
+        $('saldoDetalhe').textContent = 'Nenhum gasto ainda';
+        $('saldoStats').hidden = true;
+      } else {
+        const { inicio } = intervalo(gastos);
+        const qtd = gastos.length === 1 ? '1 gasto' : `${gastos.length} gastos`;
+        $('saldoInfo').textContent = `${qtd} · desde ${diaMes(inicio)}`;
+
+        if (r) {
+          $('saldoLabel').textContent = `${r.devedor} deve`;
+          $('saldoValor').textContent = `R$ ${fmt(r.valor)}`;
+          $('saldoDetalhe').textContent = `para ${r.credor}`;
+        } else {
+          $('saldoLabel').textContent = 'Saldo';
+          $('saldoValor').textContent = 'R$ 0,00';
+          $('saldoDetalhe').textContent = 'Contas equilibradas';
+        }
+
+        $('saldoStats').hidden = false;
+        $('saldoStats').innerHTML = `
+          <div>Total<b>R$ ${fmt(c.total)}</b></div>
+          <div>Parte Michael<b>R$ ${fmt(c.parteM)}</b></div>
+          <div>Parte Steffany<b>R$ ${fmt(c.parteS)}</b></div>`;
+      }
+
+      $('lista').innerHTML = listaHTML(gastos, true);
+      $('acoes').hidden = gastos.length === 0;
+    }
+
+    function renderHistorico() {
+      if (periodos.length === 0) {
+        $('listaPeriodos').innerHTML = `
+          <div class="vazio-estado">
+            <b>Nenhum período fechado</b>
+            Quando acertarem as contas, toque em "Fechar período" e ele aparece aqui.
+          </div>`;
+        return;
+      }
+
+      const ord = periodos.slice().sort((a, b) => new Date(b.fechadoEm) - new Date(a.fechadoEm));
+      $('listaPeriodos').innerHTML = ord.map(p => {
+        const c = calcular(p.gastos);
+        const r = resultado(c);
+        const qtd = p.gastos.length === 1 ? '1 gasto' : `${p.gastos.length} gastos`;
+        const res = r
+          ? `${r.devedor} → ${r.credor}<b>R$ ${fmt(r.valor)}</b>`
+          : `Equilibrado<b>R$ 0,00</b>`;
+        return `
+          <details class="card periodo">
+            <summary>
+              <div class="per-info">
+                <div class="per-titulo">${tituloPeriodo(p)}</div>
+                <div class="per-sub">${qtd} · Total R$ ${fmt(c.total)}</div>
+              </div>
+              <div class="per-res">${res}</div>
+            </summary>
+            <div class="per-corpo">
+              ${listaHTML(p.gastos, false)}
+              <div class="acoes">
+                <button class="btn-sec" onclick="copiarPeriodo('${p.id}')">Copiar extrato</button>
+                <button class="btn-sec perigo" onclick="excluirPeriodo('${p.id}')">Excluir</button>
+              </div>
+            </div>
+          </details>`;
+      }).join('');
+    }
+
+    function tituloPeriodo(p) {
+      const ini = new Date(p.inicio);
+      const fim = new Date(p.fim);
+      if (chaveDia(ini) === chaveDia(fim)) return diaMesAno(fim);
+      if (ini.getFullYear() === fim.getFullYear()) return `${diaMes(ini)} – ${diaMesAno(fim)}`;
+      return `${diaMesAno(ini)} – ${diaMesAno(fim)}`;
+    }
+
+    // ===== Ações =====
+    function adicionar() {
+      const valor = lerValor($('valor').value);
+      if (!valor || valor <= 0) {
+        toast('Informe um valor');
+        $('valor').focus();
+        return;
+      }
+
+      gastos.push(normalizar({
+        valor,
+        pagador: pagadorSel,
+        local: $('local').value.trim(),
+        pm: divisaoSel,
+        data: new Date()
+      }));
+
+      $('valor').value = '';
+      $('local').value = '';
+      selecionar('divisao', '50'); // volta pro padrão para não esquecer ligado
+      $('valor').blur();
+      $('local').blur();
+
+      salvar();
+      renderAtual();
+      if (navigator.vibrate) navigator.vibrate(10);
+      toast('Gasto adicionado');
+    }
+
+    function remover(id) {
+      const g = gastos.find(x => x.id === id);
+      if (!g) return;
+      const desc = g.local ? ` (${g.local})` : '';
+      if (!confirm(`Remover R$ ${fmt(g.valor)}${desc}?`)) return;
+      gastos = gastos.filter(x => x.id !== id);
+      salvar();
+      renderAtual();
+    }
+
+    function fecharPeriodo() {
+      if (gastos.length === 0) return toast('Não há gastos para fechar');
+
+      const r = resultado(calcular(gastos));
+      const linha = r
+        ? `${r.devedor} deve R$ ${fmt(r.valor)} para ${r.credor}.`
+        : 'As contas estão equilibradas.';
+      if (!confirm(`Fechar o período?\n\n${linha}\n\nOs gastos vão para o Histórico e o período atual começa do zero.`)) return;
+
+      const { inicio, fim } = intervalo(gastos);
+      periodos.push({
+        id: gerarId(),
+        fechadoEm: new Date().toISOString(),
+        inicio: inicio.toISOString(),
+        fim: fim.toISOString(),
+        gastos: gastos.slice()
+      });
+      gastos = [];
+      salvar();
+      renderAtual();
+      toast('Período salvo no Histórico');
+    }
+
+    function copiarPeriodo(id) {
+      const p = periodos.find(x => x.id === id);
+      if (p) copiarTexto(gerarExtrato(p.gastos, `Período ${tituloPeriodo(p)}`));
+    }
+
+    function excluirPeriodo(id) {
+      const p = periodos.find(x => x.id === id);
+      if (!p) return;
+      if (!confirm(`Excluir o período ${tituloPeriodo(p)} do histórico? Não dá para desfazer.`)) return;
+      periodos = periodos.filter(x => x.id !== id);
+      salvar();
+      renderHistorico();
+      toast('Período excluído');
+    }
+
+    // ===== Backup =====
+    function exportar() {
+      const dados = {
+        app: 'divisao-contas',
+        versao: 2,
+        exportadoEm: new Date().toISOString(),
+        atual: gastos,
+        periodos
+      };
+      const json = JSON.stringify(dados, null, 2);
+      const nome = `contas-backup-${chaveDia(new Date())}.json`;
+      const blob = new Blob([json], { type: 'application/json' });
+
+      // No celular, abre o menu de compartilhar (salvar em Arquivos, Drive, WhatsApp...)
+      try {
+        const arquivo = new File([blob], nome, { type: 'application/json' });
+        if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+          navigator.share({ files: [arquivo], title: 'Backup Contas' }).catch(() => { });
+          return;
+        }
+      } catch (e) { }
+
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = nome;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function importar(arquivo) {
+      const leitor = new FileReader();
+      leitor.onload = () => {
+        try {
+          const dados = JSON.parse(leitor.result);
+          if (!Array.isArray(dados.atual) || !Array.isArray(dados.periodos)) throw new Error();
+          if (!confirm('Substituir todos os dados deste aparelho pelos do backup?')) return;
+          gastos = dados.atual.map(normalizar);
+          periodos = dados.periodos.map(p => ({ ...p, gastos: (p.gastos || []).map(normalizar) }));
+          salvar();
+          renderAtual();
+          renderHistorico();
+          toast('Backup restaurado');
+        } catch (e) {
+          toast('Arquivo de backup inválido');
+        }
+      };
+      leitor.readAsText(arquivo);
+    }
+
+    // ===== Controles =====
+    function selecionar(grupo, valor) {
+      document.querySelectorAll(`#${grupo} button`).forEach(b => {
+        b.classList.toggle('ativo', b.dataset.v === valor);
+      });
+      if (grupo === 'pagador') pagadorSel = valor;
+      if (grupo === 'divisao') divisaoSel = parseInt(valor, 10);
+    }
+
+    function mostrarTela(tela) {
+      document.querySelectorAll('#tabs button').forEach(b => {
+        b.classList.toggle('ativo', b.dataset.tela === tela);
+      });
+      $('tela-atual').hidden = tela !== 'atual';
+      $('tela-historico').hidden = tela !== 'historico';
+      if (tela === 'historico') renderHistorico();
+      window.scrollTo(0, 0);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      carregar();
+      renderAtual();
+
+      ['pagador', 'divisao'].forEach(grupo => {
+        document.querySelectorAll(`#${grupo} button`).forEach(b => {
+          b.addEventListener('click', () => selecionar(grupo, b.dataset.v));
+        });
+      });
+
+      document.querySelectorAll('#tabs button').forEach(b => {
+        b.addEventListener('click', () => mostrarTela(b.dataset.tela));
+      });
+
+      ['valor', 'local'].forEach(id => {
+        $(id).addEventListener('keydown', e => {
+          if (e.key === 'Enter') adicionar();
+        });
+      });
+
+      $('btnAdicionar').addEventListener('click', adicionar);
+      $('btnCopiar').addEventListener('click', () => copiarTexto(gerarExtrato(gastos)));
+      $('btnFechar').addEventListener('click', fecharPeriodo);
+      $('btnExportar').addEventListener('click', exportar);
+      $('btnImportar').addEventListener('click', () => $('arquivoImport').click());
+      $('arquivoImport').addEventListener('change', e => {
+        if (e.target.files[0]) importar(e.target.files[0]);
+        e.target.value = '';
+      });
+    });
   </script>
 
 </body>
